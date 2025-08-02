@@ -5,4 +5,6 @@ type Order struct {
 	Customer string
 	Content  string
 	File     []string
+	Color    string
+	Material string
 }
