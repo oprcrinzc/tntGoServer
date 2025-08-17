@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"context"
+	"os"
 	"usersys/db"
 	"usersys/def"
 
@@ -22,12 +23,12 @@ func Order(c *fiber.Ctx) error {
 
 	log.Info(multiP.Filename)
 
-	c.SaveFile(multiP, "/mnt/game/projects/tnt3dPrint/UserSys/storage/"+multiP.Filename)
 	// file := "asdasd"
 	order.Content = cnt
 	order.Color = color
 	order.Material = material
 	order.File = []string{multiP.Filename}
+	order.Status = def.StatusPending
 
 	log.Info(cnt)
 	if cnt == "" {
@@ -36,6 +37,8 @@ func Order(c *fiber.Ctx) error {
 	// err := c.BodyParser(&order)
 	token := c.Get("Authorization")
 	// log.Info(token)
+
+	Ack := false
 
 	if token != "" {
 		t, err := def.VerifyJwt(token)
@@ -62,13 +65,24 @@ func Order(c *fiber.Ctx) error {
 			return c.JSON(err.Error())
 		}
 		if iRes.Acknowledged {
-			return c.JSON(iRes.Acknowledged)
+			// return c.JSON(iRes.Acknowledged)
+			Ack = iRes.Acknowledged
 		}
 
 	}
 
-	if err != nil {
+	if err != nil && Ack {
 		return c.JSON(err.Error())
+	}
+	err = os.Mkdir("/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer, os.ModeDir)
+	if !os.IsExist(err) {
+		os.Chmod("/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer, os.ModePerm)
+	}
+
+	// log.Info(os.IsExist(err))
+	err = c.SaveFile(multiP, "/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer+"/"+multiP.Filename)
+	if err != nil {
+		return c.JSON(err)
 	}
 	return c.JSON(order)
 }
