@@ -1,0 +1,10 @@
+TomYum, 1, 120
+Tempura sushi, 2, 60
+Salmon sashimi, 3, 100
+Miso soup, 5, 40
+Soi Ju, 1, 100
+Bloody Larb, 1, 90
+Padthai, 2, 60
+Hoytord, 1, 80
+Fanta, 3, 20
+Diet Coke, 3, 20

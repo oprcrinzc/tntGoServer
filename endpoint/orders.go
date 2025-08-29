@@ -28,6 +28,7 @@ func Orders(c *fiber.Ctx) error {
 		}()
 		col := client.Database("tnt").Collection("order")
 		cursor, err := col.Find(context.TODO(), bson.M{"customer": customer})
+		// log.Info(customer)
 		if err != nil {
 			return c.Status(500).JSON(def.Msg{
 				Header:  "Database Error",
@@ -41,6 +42,9 @@ func Orders(c *fiber.Ctx) error {
 				Header:  "Database Error",
 				Content: err.Error(),
 			})
+		}
+		if len(orders) == 0 {
+			return c.Status(200).JSON("NULL")
 		}
 		// log.Info(orders)
 		return c.JSON(orders)

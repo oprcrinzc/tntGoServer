@@ -64,7 +64,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 	if len(res) == 1 {
-		s, err := def.GenJwt("oprc")
+		s, err := def.GenJwt(body.Name)
 		if err != nil {
 			c.JSON(err)
 		}
