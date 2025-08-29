@@ -7,7 +7,7 @@ const (
 )
 
 type Order struct {
-	Label    string
+	Time     int
 	Customer string
 	Content  string
 	File     []string
@@ -15,3 +15,5 @@ type Order struct {
 	Material string
 	Status   string
 }
+
+type Orders []Order

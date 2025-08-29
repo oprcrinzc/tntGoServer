@@ -3,6 +3,8 @@ package endpoint
 import (
 	"context"
 	"os"
+	"strconv"
+	"time"
 	"usersys/db"
 	"usersys/def"
 
@@ -10,6 +12,27 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/golang-jwt/jwt/v5"
 )
+
+func Ext(full string) string {
+	i := len(full) - 1
+	extR := ""
+	ext := ""
+	for j := i; j <= i; {
+		if full[j] == '.' {
+			break
+		}
+		extR += string(full[j])
+		j -= 1
+	}
+	for j := len(extR) - 1; j <= len(extR)-1; {
+		ext += string(extR[j])
+		j -= 1
+		if j < 0 {
+			break
+		}
+	}
+	return "." + ext
+}
 
 func Order(c *fiber.Ctx) error {
 	order := def.Order{}
@@ -21,14 +44,7 @@ func Order(c *fiber.Ctx) error {
 		log.Error(err)
 	}
 
-	log.Info(multiP.Filename)
-
-	// file := "asdasd"
-	order.Content = cnt
-	order.Color = color
-	order.Material = material
-	order.File = []string{multiP.Filename}
-	order.Status = def.StatusPending
+	log.Info(Ext(multiP.Filename))
 
 	log.Info(cnt)
 	if cnt == "" {
@@ -36,8 +52,14 @@ func Order(c *fiber.Ctx) error {
 	}
 	// err := c.BodyParser(&order)
 	token := c.Get("Authorization")
-	// log.Info(token)
-
+	// log.Info(token)\
+	fileName := ""
+	orderTime := int(time.Now().UnixNano())
+	order.Content = cnt
+	order.Time = orderTime
+	order.Color = color
+	order.Material = material
+	order.Status = def.StatusPending
 	Ack := false
 
 	if token != "" {
@@ -50,6 +72,9 @@ func Order(c *fiber.Ctx) error {
 		// if err != nil {
 		// 	log.Fatal(err)
 		// }
+		fileName = order.Customer + strconv.Itoa(orderTime) + Ext(multiP.Filename)
+		order.File = []string{fileName}
+
 		client := db.Conn()
 		defer func() {
 			err := client.Disconnect(context.TODO())
@@ -74,13 +99,14 @@ func Order(c *fiber.Ctx) error {
 	if err != nil && Ack {
 		return c.JSON(err.Error())
 	}
+
 	err = os.Mkdir("/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer, os.ModeDir)
 	if !os.IsExist(err) {
 		os.Chmod("/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer, os.ModePerm)
 	}
 
 	// log.Info(os.IsExist(err))
-	err = c.SaveFile(multiP, "/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer+"/"+multiP.Filename)
+	err = c.SaveFile(multiP, "/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer+"/"+fileName)
 	if err != nil {
 		return c.JSON(err)
 	}

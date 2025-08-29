@@ -18,6 +18,7 @@ func main() {
 	app.Post("/createUser", endpoint.CreateUser)
 	app.Post("/login", endpoint.Login)
 	app.Post("/order", endpoint.Order)
+	app.Get("/orders", endpoint.Orders)
 
 	app.Listen(":7200")
 	fmt.Println("User system on !")
