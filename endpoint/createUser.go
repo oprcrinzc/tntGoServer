@@ -39,7 +39,8 @@ func CreateUser(c *fiber.Ctx) error {
 
 	// check is name used in db
 
-	var res def.Users
+	var foundUser1 def.Users
+	var foundUser2 def.Users
 	client := db.Conn()
 	col := client.Database("tnt").Collection("user")
 	defer func() {
@@ -52,14 +53,23 @@ func CreateUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(err)
 	}
-	err = cursor.All(context.TODO(), &res)
+	err = cursor.All(context.TODO(), &foundUser1)
+	if err != nil {
+		return c.Status(400).JSON(err)
+	}
+
+	cursor, err = col.Find(context.TODO(), bson.D{{Key: "email", Value: body.Email}})
+	if err != nil {
+		return c.Status(400).JSON(err)
+	}
+	err = cursor.All(context.TODO(), &foundUser2)
 	if err != nil {
 		return c.Status(400).JSON(err)
 	}
 
 	// last check
 
-	if len(res) == 0 {
+	if len(foundUser1)+len(foundUser2) == 0 {
 		sha512Pwd := sha512.Sum512([]byte(body.Password))
 		// create user
 		newUser := def.UserCreationIngredient{
