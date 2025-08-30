@@ -19,6 +19,7 @@ func main() {
 	app.Post("/login", endpoint.Login)
 	app.Post("/order", endpoint.Order)
 	app.Get("/orders", endpoint.Orders)
+	app.Get("/qr/:id", endpoint.QrPay)
 
 	app.Listen(":7200")
 	fmt.Println("User system on !")

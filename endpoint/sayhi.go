@@ -4,8 +4,6 @@ import (
 
 	// "usersys/define"
 
-	"usersys/def"
-
 	"github.com/gofiber/fiber/v2"
 	// "go.mongodb.org/mongo-driver/bson"
 )
@@ -26,7 +24,7 @@ func Sayhi(c *fiber.Ctx) error {
 	// if err = cursor.All(context.TODO(), &res); err != nil {
 	// 	return c.SendString(err.Error())
 	// }
-	def.GenQr(def.GenQrString(7200.98))
+	// def.GenQr(def.GenQrString(7200.98))
 
 	return c.SendString("Hi")
 }
