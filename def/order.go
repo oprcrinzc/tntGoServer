@@ -7,7 +7,7 @@ const (
 )
 
 type Order struct {
-	Time     int
+	Time     string
 	Customer string
 	Content  string
 	File     []string

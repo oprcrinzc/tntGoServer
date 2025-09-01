@@ -56,7 +56,7 @@ func Order(c *fiber.Ctx) error {
 	fileName := ""
 	orderTime := int(time.Now().UnixNano())
 	order.Content = cnt
-	order.Time = orderTime
+	order.Time = strconv.Itoa(orderTime)
 	order.Color = color
 	order.Material = material
 	order.Status = def.StatusPending
@@ -100,15 +100,32 @@ func Order(c *fiber.Ctx) error {
 		return c.JSON(err.Error())
 	}
 
-	err = os.Mkdir("/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer, os.ModeDir)
+	storagePath := os.Getenv("storage_user_path")
+	if storagePath == "" {
+		log.Error("storage_user_path is empth in .env")
+	}
+
+	err = os.Mkdir(storagePath+order.Customer, os.ModeDir)
 	if !os.IsExist(err) {
-		os.Chmod("/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer, os.ModePerm)
+		os.Chmod(storagePath+order.Customer, os.ModePerm)
+	}
+	err = os.Mkdir(storagePath+order.Customer+"/qr/", os.ModeDir)
+	if !os.IsExist(err) {
+		os.Chmod(storagePath+order.Customer+"/qr/", os.ModePerm)
 	}
 
 	// log.Info(os.IsExist(err))
-	err = c.SaveFile(multiP, "/mnt/game/projects/tnt3dPrint/UserSys/storage/"+order.Customer+"/"+fileName)
+	err = c.SaveFile(multiP, storagePath+order.Customer+"/"+fileName)
 	if err != nil {
 		return c.JSON(err)
 	}
+
+	qrString, err := def.GenQrString(20)
+	if err != nil {
+		log.Error("qrString error", err)
+		return c.SendStatus(500)
+	}
+	def.GenQr(qrString, order.Customer+"/qr/"+order.Time+".png")
+
 	return c.JSON(order)
 }
